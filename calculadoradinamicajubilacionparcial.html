@@ -182,7 +182,7 @@
     <div id="helpPanel" class="help-panel">
         <h3>Guía para la Introducción de Datos y Tramos</h3>
         <ul>
-            <li><b>Nombre del Trabajador:</b> Nombre completo del empleado para personalizar el informe.</li>
+            <li><b>Nombre del Trabajador:</b> Introduce el nombre y apellidos del empleado.</li>
             <li><b>Fecha Cumpleaños (63 años):</b> Fecha exacta de cumplimiento de los 63 años para el acceso a la jubilación parcial.</li>
             <li><b>Horas Anuales y Jornada:</b> Horas fijadas por convenio (ej. 1620h) y duración diaria ordinaria (ej. 7,5h).</li>
             <li><b>Vacaciones / AP (Días):</b> Días acumulados a descontar al final del periodo de trabajo presencial.</li>
@@ -201,11 +201,11 @@
         <div class="grid-form">
             <div class="form-group">
                 <label>Nombre del Trabajador</label>
-                <input type="text" id="nombre" value="Juan Carlos">
+                <input type="text" id="nombre" value="" placeholder="Ej. Juan Carlos" oninput="actualizarNombre()">
             </div>
             <div class="form-group">
                 <label>Fecha Cumpleaños (63 años)</label>
-                <input type="text" id="fechaCumple" value="02/05/1964">
+                <input type="text" id="fechaCumple" value="" placeholder="DD/MM/AAAA">
             </div>
             <div class="form-group">
                 <label>Horas Anuales Convenio</label>
@@ -217,7 +217,7 @@
             </div>
             <div class="form-group">
                 <label>Vacaciones / AP (Días)</label>
-                <input type="number" step="0.01" id="vacacionesDias" value="27.35">
+                <input type="number" step="0.01" id="vacacionesDias" value="0.00">
             </div>
         </div>
 
@@ -239,7 +239,7 @@
             <tbody id="tramosBody">
                 <tr>
                     <td><input type="text" value="Tramo Previo (Acumulación 33%)"></td>
-                    <td><input type="number" value="7"></td>
+                    <td><input type="number" value="12"></td>
                     <td><input type="number" value="33" oninput="calcTrabajo(this)"></td>
                     <td><input type="number" value="100" readonly style="background:#f0f0f0;"></td>
                     <td><button class="btn btn-sm btn-danger" onclick="removeTramo(this)">X</button></td>
@@ -261,22 +261,22 @@
 
     <!-- TARJETA RESUMEN -->
     <div class="card">
-        <h2 id="cardNombreTitle">Informe de Planificación: Juan Carlos</h2>
+        <h2 id="cardNombreTitle">Informe de Planificación: Nombre y Apellidos</h2>
         <div class="grid-form">
             <div>
-                <div class="stat-group"><span class="stat-label">Bolsa Acumulada Previa (33%):</span><span class="stat-value" id="valBolsa">+ 348,98 h</span></div>
-                <div class="stat-group"><span class="stat-label">Deuda Teórica Parcial (75%):</span><span class="stat-value" id="valDeudaTeorica">809,13 h</span></div>
-                <div class="stat-group"><span class="stat-label">Deuda Neta Inicial:</span><span class="stat-value" id="valDeudaNeta">460,15 h</span></div>
+                <div class="stat-group"><span class="stat-label">Bolsa Acumulada Previa:</span><span class="stat-value" id="valBolsa">0,00 h</span></div>
+                <div class="stat-group"><span class="stat-label">Deuda Teórica Parcial:</span><span class="stat-value" id="valDeudaTeorica">0,00 h</span></div>
+                <div class="stat-group"><span class="stat-label">Deuda Neta Inicial:</span><span class="stat-value" id="valDeudaNeta">0,00 h</span></div>
             </div>
             <div>
-                <div class="stat-group"><span class="stat-label">Presencia Necesaria sin Vacaciones:</span><span class="stat-value" id="valPresenciaSinVac">61,35 días</span></div>
-                <div class="stat-group"><span class="stat-label">Descuento Vacaciones / Permisos:</span><span class="stat-value" id="valDescuentoVac">- 27,35 días</span></div>
-                <div class="stat-group"><span class="stat-label">Días Asistencia Física Real:</span><span class="stat-value" id="valDiasReales">34,00 días</span></div>
+                <div class="stat-group"><span class="stat-label">Presencia Necesaria sin Vacaciones:</span><span class="stat-value" id="valPresenciaSinVac">0,00 días</span></div>
+                <div class="stat-group"><span class="stat-label">Descuento Vacaciones / Permisos:</span><span class="stat-value" id="valDescuentoVac">0,00 días</span></div>
+                <div class="stat-group"><span class="stat-label">Días Asistencia Física Real:</span><span class="stat-value" id="valDiasReales">0,00 días</span></div>
             </div>
         </div>
         <div class="highlight-box">
             <div>ÚLTIMO DÍA TRABAJO PRESENCIAL</div>
-            <div class="final-date" id="valFechaFinal">Viernes, 18 de Junio de 2027</div>
+            <div class="final-date" id="valFechaFinal">Pendiente de calcular</div>
         </div>
     </div>
 
@@ -295,31 +295,17 @@
                 </tr>
             </thead>
             <tbody id="tbodyDesglose">
+                <tr>
+                    <td colspan="6" style="padding: 20px; color: #777; font-style: italic;">
+                        Introduce los datos del trabajador y pulsa "Recalcular Planificación" para generar el desglose.
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const datosIniciales = {
-        nombre: "Juan Carlos",
-        rows: [
-            { mes: "Octubre 2026", jl: "18", reg: '<span class="badge badge-33">100% (+33%)</span>', horas: "+ 44,55 h", deuda: "- 44,55 h", obs: "Generando bolsa a favor" },
-            { mes: "Noviembre 2026", jl: "21", reg: '<span class="badge badge-33">100% (+33%)</span>', horas: "+ 51,98 h", deuda: "- 96,53 h", obs: "Generando bolsa a favor" },
-            { mes: "Diciembre 2026", jl: "20", reg: '<span class="badge badge-33">100% (+33%)</span>', horas: "+ 49,50 h", deuda: "- 146,03 h", obs: "Generando bolsa a favor" },
-            { mes: "Enero 2027", jl: "18", reg: '<span class="badge badge-33">100% (+33%)</span>', horas: "+ 44,55 h", deuda: "- 190,58 h", obs: "Generando bolsa a favor" },
-            { mes: "Febrero 2027", jl: "20", reg: '<span class="badge badge-33">100% (+33%)</span>', horas: "+ 49,50 h", deuda: "- 240,08 h", obs: "Generando bolsa a favor" },
-            { mes: "Marzo 2027", jl: "22", reg: '<span class="badge badge-33">100% (+33%)</span>', horas: "+ 54,45 h", deuda: "- 294,53 h", obs: "Generando bolsa a favor" },
-            { mes: "Abril 2027", jl: "22", reg: '<span class="badge badge-33">100% (+33%)</span>', horas: "+ 54,45 h", deuda: "- 348,98 h", obs: "Bolsa a favor acumulada" },
-            { mes: "<b>02/05/2027</b>", jl: "-", reg: "-", horas: "-", deuda: "<b>460,15 h</b>", obs: "<b>Inicio Jub. Parcial (809,13h - 348,98h favor)</b>", class: "row-highlight" },
-            { mes: "Mayo 2027", jl: "20", reg: '<span class="badge badge-75">Presencial</span>', horas: "- 150,00 h", deuda: "310,15 h", obs: "Trabajo presencial (20 días x 7,5h)" },
-            { mes: "Junio 2027 (hasta 18/06)", jl: "14", reg: '<span class="badge badge-75">Presencial</span>', horas: "- 105,00 h", deuda: "205,15 h", obs: "<b>Fin de Asistencia Física (14 días presenciales)</b>", class: "row-highlight" },
-            { mes: "Julio 2027", jl: "22", reg: '<span class="badge badge-off">VAC / AP</span>', horas: "- 165,00 h", deuda: "40,15 h", obs: "Amortización mediante Vacaciones/Permisos (22 días)", class: "row-liberado" },
-            { mes: "Agosto 2027", jl: "5.35", reg: '<span class="badge badge-off">VAC / AP</span>', horas: "- 40,15 h", deuda: "0,00 h", obs: "<b>Deuda liquidada al 100% con 5,35 días de vacaciones.</b>", class: "row-liberado" },
-            { mes: "Sep 2027 - May 2029", jl: "-", reg: '<span class="badge badge-off">100% OFF</span>', horas: "0,00 h", deuda: "0,00 h", obs: "Liberado totalmente hasta la jubilación (02/05/2029)", class: "row-liberado" }
-        ]
-    };
-
     function toggleHelp() {
         const panel = document.getElementById('helpPanel');
         panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
@@ -350,12 +336,20 @@
         row.remove();
     }
 
-    function recalcular() {
-        const nom = document.getElementById('nombre').value || "Trabajador";
+    function actualizarNombre() {
+        const nom = document.getElementById('nombre').value.trim() || "Nombre y Apellidos";
         document.getElementById('cardNombreTitle').innerText = 'Informe de Planificación: ' + nom;
-        alert('Planificación recalculada correctamente con los nuevos tramos y porcentajes.');
     }
 
-    function cargarTabla() {
-        const tbody = document.getElementById('tbodyDesglose');
-        tbody.
+    function recalcular() {
+        actualizarNombre();
+        alert('Cálculo ejecutado. Introduce los parámetros específicos requeridos para actualizar las tarjetas.');
+    }
+
+    window.onload = function() {
+        actualizarNombre();
+    };
+</script>
+
+</body>
+</html>
