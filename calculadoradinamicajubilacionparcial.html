@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Jubilación Parcial</title>
+    <title>Calculadora Dinámica de Jubilación Parcial</title>
     <style>
         :root {
             --primary: #0072ce;
@@ -180,18 +180,12 @@
 
     <!-- PANEL DE AYUDA DESPLEGABLE -->
     <div id="helpPanel" class="help-panel">
-        <h3>Guía para la Introducción de Datos y Tramos</h3>
+        <h3>Guía para la Introducción de Datos por Fechas Exactas</h3>
         <ul>
-            <li><b>Nombre del Trabajador:</b> Introduce el nombre y apellidos del empleado.</li>
-            <li><b>Fecha Cumpleaños (63 años):</b> Fecha exacta de cumplimiento de los 63 años para el acceso a la jubilación parcial.</li>
-            <li><b>Horas Anuales y Jornada:</b> Horas fijadas por convenio (ej. 1620h) y duración diaria ordinaria (ej. 7,5h).</li>
-            <li><b>Vacaciones / AP (Días):</b> Días acumulados a descontar al final del periodo de trabajo presencial.</li>
-            <li><b>Tramos de Reducción / Aportación:</b> Configura las etapas de jubilación parcial.
-                <ul>
-                    <li><i>Tramo 1 (Previo/Inicial):</i> Reducción del 33% (Trabajo al 100% generando bolsa de horas a favor).</li>
-                    <li><i>Tramo 2 (Oficial):</i> Reducción del 75% (Jornada presencial del 25% para amortizar deuda).</li>
-                </ul>
-            </li>
+            <li><b>Nombre del Trabajador:</b> Nombre completo del empleado para personalizar el informe.</li>
+            <li><b>Fecha Cumpleaños (63 años):</b> Fecha exacta en que alcanza los 63 años e inicia la jubilación parcial.</li>
+            <li><b>Fechas de Tramo:</b> Introduce la **Fecha Inicio** y **Fecha Fin** exactas (AAAA-MM-DD). La calculadora computará únicamente los días laborables reales entre ambas fechas.</li>
+            <li><b>Cómputo Preciso:</b> Se descuentan sábados y domingos para calcular con total exactitud las horas de bolsa a favor y la deuda presencial requerida.</li>
         </ul>
     </div>
 
@@ -201,11 +195,11 @@
         <div class="grid-form">
             <div class="form-group">
                 <label>Nombre del Trabajador</label>
-                <input type="text" id="nombre" value="" placeholder="Ej. Juan Carlos" oninput="actualizarNombre()">
+                <input type="text" id="nombre" value="Juan Carlos">
             </div>
             <div class="form-group">
                 <label>Fecha Cumpleaños (63 años)</label>
-                <input type="text" id="fechaCumple" value="" placeholder="DD/MM/AAAA">
+                <input type="date" id="fechaCumple" value="2027-05-02">
             </div>
             <div class="form-group">
                 <label>Horas Anuales Convenio</label>
@@ -217,38 +211,41 @@
             </div>
             <div class="form-group">
                 <label>Vacaciones / AP (Días)</label>
-                <input type="number" step="0.01" id="vacacionesDias" value="0.00">
+                <input type="number" step="0.01" id="vacacionesDias" value="27.35">
             </div>
         </div>
 
-        <!-- SECCIÓN DINÁMICA DE TRAMOS -->
+        <!-- SECCIÓN DINÁMICA DE TRAMOS CON FECHAS EXACTAS -->
         <div class="section-title-sm">
-            <span>Tramos de Reducción / Aportación</span>
+            <span>Tramos por Fechas Exactas</span>
             <button class="btn btn-sm" onclick="addTramo()">+ Añadir Tramo</button>
         </div>
         <table class="tramos-table">
             <thead>
                 <tr>
                     <th>Nombre del Tramo</th>
-                    <th>Duración (Meses)</th>
-                    <th>% Reducción Jornada</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>% Reducción</th>
                     <th>% Trabaja Real</th>
                     <th>Acción</th>
                 </tr>
             </thead>
             <tbody id="tramosBody">
                 <tr>
-                    <td><input type="text" value="Tramo Previo (Acumulación 33%)"></td>
-                    <td><input type="number" value="12"></td>
-                    <td><input type="number" value="33" oninput="calcTrabajo(this)"></td>
-                    <td><input type="number" value="100" readonly style="background:#f0f0f0;"></td>
+                    <td><input type="text" value="Tramo Previo (Acumulación 33%)" class="t-nombre"></td>
+                    <td><input type="date" value="2026-10-01" class="t-inicio"></td>
+                    <td><input type="date" value="2027-05-01" class="t-fin"></td>
+                    <td><input type="number" value="33" class="t-red" oninput="calcTrabajo(this)"></td>
+                    <td><input type="number" value="100" class="t-trab" readonly style="background:#f0f0f0;"></td>
                     <td><button class="btn btn-sm btn-danger" onclick="removeTramo(this)">X</button></td>
                 </tr>
                 <tr>
-                    <td><input type="text" value="Tramo Parcial (Régimen 75%)"></td>
-                    <td><input type="number" value="24"></td>
-                    <td><input type="number" value="75" oninput="calcTrabajo(this)"></td>
-                    <td><input type="number" value="25" readonly style="background:#f0f0f0;"></td>
+                    <td><input type="text" value="Tramo Parcial (Régimen 75%)" class="t-nombre"></td>
+                    <td><input type="date" value="2027-05-02" class="t-inicio"></td>
+                    <td><input type="date" value="2029-05-02" class="t-fin"></td>
+                    <td><input type="number" value="75" class="t-red" oninput="calcTrabajo(this)"></td>
+                    <td><input type="number" value="25" class="t-trab" readonly style="background:#f0f0f0;"></td>
                     <td><button class="btn btn-sm btn-danger" onclick="removeTramo(this)">X</button></td>
                 </tr>
             </tbody>
@@ -261,22 +258,22 @@
 
     <!-- TARJETA RESUMEN -->
     <div class="card">
-        <h2 id="cardNombreTitle">Informe de Planificación: Nombre y Apellidos</h2>
+        <h2 id="cardNombreTitle">Informe de Planificación: Juan Carlos</h2>
         <div class="grid-form">
             <div>
-                <div class="stat-group"><span class="stat-label">Bolsa Acumulada Previa:</span><span class="stat-value" id="valBolsa">0,00 h</span></div>
+                <div class="stat-group"><span class="stat-label">Bolsa Acumulada Previa:</span><span class="stat-value" id="valBolsa">+ 0,00 h</span></div>
                 <div class="stat-group"><span class="stat-label">Deuda Teórica Parcial:</span><span class="stat-value" id="valDeudaTeorica">0,00 h</span></div>
                 <div class="stat-group"><span class="stat-label">Deuda Neta Inicial:</span><span class="stat-value" id="valDeudaNeta">0,00 h</span></div>
             </div>
             <div>
                 <div class="stat-group"><span class="stat-label">Presencia Necesaria sin Vacaciones:</span><span class="stat-value" id="valPresenciaSinVac">0,00 días</span></div>
-                <div class="stat-group"><span class="stat-label">Descuento Vacaciones / Permisos:</span><span class="stat-value" id="valDescuentoVac">0,00 días</span></div>
+                <div class="stat-group"><span class="stat-label">Descuento Vacaciones / Permisos:</span><span class="stat-value" id="valDescuentoVac">- 0,00 días</span></div>
                 <div class="stat-group"><span class="stat-label">Días Asistencia Física Real:</span><span class="stat-value" id="valDiasReales">0,00 días</span></div>
             </div>
         </div>
         <div class="highlight-box">
             <div>ÚLTIMO DÍA TRABAJO PRESENCIAL</div>
-            <div class="final-date" id="valFechaFinal">Pendiente de calcular</div>
+            <div class="final-date" id="valFechaFinal">Calculando...</div>
         </div>
     </div>
 
@@ -286,20 +283,15 @@
         <table>
             <thead>
                 <tr>
-                    <th>Mes / Año</th>
-                    <th>Días JL</th>
+                    <th>Etapa / Periodo</th>
+                    <th>Días Laborables</th>
                     <th>Régimen</th>
-                    <th>Horas Mensuales</th>
-                    <th>Deuda Neta Pendiente</th>
+                    <th>Horas Generadas / Debidas</th>
+                    <th>Saldo Deuda</th>
                     <th>Estado / Observaciones</th>
                 </tr>
             </thead>
             <tbody id="tbodyDesglose">
-                <tr>
-                    <td colspan="6" style="padding: 20px; color: #777; font-style: italic;">
-                        Introduce los datos del trabajador y pulsa "Recalcular Planificación" para generar el desglose.
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
@@ -314,7 +306,7 @@
     function calcTrabajo(input) {
         const row = input.closest('tr');
         const reduccion = parseFloat(input.value) || 0;
-        const trabajaInput = row.cells[3].querySelector('input');
+        const trabajaInput = row.querySelector('.t-trab');
         trabajaInput.value = (100 - reduccion) > 0 ? (100 - reduccion) : 100;
     }
 
@@ -322,32 +314,144 @@
         const tbody = document.getElementById('tramosBody');
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" value="Nuevo Tramo"></td>
-            <td><input type="number" value="12"></td>
-            <td><input type="number" value="50" oninput="calcTrabajo(this)"></td>
-            <td><input type="number" value="50" readonly style="background:#f0f0f0;"></td>
+            <td><input type="text" value="Nuevo Tramo" class="t-nombre"></td>
+            <td><input type="date" value="2027-01-01" class="t-inicio"></td>
+            <td><input type="date" value="2028-01-01" class="t-fin"></td>
+            <td><input type="number" value="50" class="t-red" oninput="calcTrabajo(this)"></td>
+            <td><input type="number" value="50" class="t-trab" readonly style="background:#f0f0f0;"></td>
             <td><button class="btn btn-sm btn-danger" onclick="removeTramo(this)">X</button></td>
         `;
         tbody.appendChild(tr);
     }
 
     function removeTramo(btn) {
-        const row = btn.closest('tr');
-        row.remove();
+        btn.closest('tr').remove();
     }
 
-    function actualizarNombre() {
-        const nom = document.getElementById('nombre').value.trim() || "Nombre y Apellidos";
-        document.getElementById('cardNombreTitle').innerText = 'Informe de Planificación: ' + nom;
+    // Función auxiliar para contar días laborables (lunes a viernes) entre dos fechas
+    function contarDiasLaborables(fInicio, fFin) {
+        let count = 0;
+        let curDate = new Date(fInicio);
+        const endDate = new Date(fFin);
+        while (curDate < endDate) {
+            const dayOfWeek = curDate.getDay();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+            curDate.setDate(curDate.getDate() + 1);
+        }
+        return count;
+    }
+
+    // Función auxiliar para sumar N días laborables a partir de una fecha
+    function sumarDiasLaborables(fInicio, numDias) {
+        let curDate = new Date(fInicio);
+        let added = 0;
+        while (added < numDias) {
+            curDate.setDate(curDate.getDate() + 1);
+            const dayOfWeek = curDate.getDay();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) added++;
+        }
+        return curDate;
     }
 
     function recalcular() {
-        actualizarNombre();
-        alert('Cálculo ejecutado. Introduce los parámetros específicos requeridos para actualizar las tarjetas.');
+        const nombre = document.getElementById('nombre').value.trim() || "Trabajador";
+        const jornadaDiaria = parseFloat(document.getElementById('jornadaDiaria').value) || 7.5;
+        const vacacionesDias = parseFloat(document.getElementById('vacacionesDias').value) || 0;
+        const fechaCumple = document.getElementById('fechaCumple').value;
+
+        document.getElementById('cardNombreTitle').innerText = 'Informe de Planificación: ' + nombre;
+
+        const rows = document.querySelectorAll('#tramosBody tr');
+        let bolsaAcumuladaHoras = 0;
+        let deudaTeoricaHoras = 0;
+        let inicioJubilacionFecha = fechaCumple ? new Date(fechaCumple) : new Date();
+
+        rows.forEach((row, idx) => {
+            const fIniStr = row.querySelector('.t-inicio').value;
+            const fFinStr = row.querySelector('.t-fin').value;
+            const reduccion = parseFloat(row.querySelector('.t-red').value) || 0;
+            const trabajaReal = parseFloat(row.querySelector('.t-trab').value) || 100;
+
+            if (fIniStr && fFinStr) {
+                const diasLab = contarDiasLaborables(fIniStr, fFinStr);
+                const horasPorDiaReduccion = jornadaDiaria * (reduccion / 100);
+
+                if (idx === 0) {
+                    // Tramo 1: Genera bolsa a favor por trabajar al 100% en lugar de reducir
+                    bolsaAcumuladaHoras = diasLab * horasPorDiaReduccion;
+                } else {
+                    // Tramos siguientes: Deuda teorica de presencia (25% trabajo)
+                    const horasPorDiaTrabajo = jornadaDiaria * (trabajaReal / 100);
+                    deudaTeoricaHoras += diasLab * horasPorDiaTrabajo;
+                }
+            }
+        });
+
+        const deudaNetaHoras = Math.max(0, deudaTeoricaHoras - bolsaAcumuladaHoras);
+        const presenciaSinVacDias = deudaNetaHoras / jornadaDiaria;
+        const diasPresencialesReales = Math.max(0, presenciaSinVacDias - vacacionesDias);
+
+        // Fecha de Fin de Trabajo Presencial
+        const fechaUltimoDia = sumarDiasLaborables(inicioJubilacionFecha, Math.round(diasPresencialesReales));
+        const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        
+        // Actualizar Tarjeta Resumen
+        document.getElementById('valBolsa').innerText = "+ " + bolsaAcumuladaHoras.toFixed(2).replace('.', ',') + " h";
+        document.getElementById('valDeudaTeorica').innerText = deudaTeoricaHoras.toFixed(2).replace('.', ',') + " h";
+        document.getElementById('valDeudaNeta').innerText = deudaNetaHoras.toFixed(2).replace('.', ',') + " h";
+        document.getElementById('valPresenciaSinVac').innerText = presenciaSinVacDias.toFixed(2).replace('.', ',') + " días";
+        document.getElementById('valDescuentoVac').innerText = "- " + vacacionesDias.toFixed(2).replace('.', ',') + " días";
+        document.getElementById('valDiasReales').innerText = diasPresencialesReales.toFixed(2).replace('.', ',') + " días";
+        document.getElementById('valFechaFinal').innerText = fechaUltimoDia.toLocaleDateString('es-ES', opcionesFecha);
+
+        // Generar Tabla Dinámica por Tramos y Fechas
+        const tbody = document.getElementById('tbodyDesglose');
+        tbody.innerHTML = `
+            <tr>
+                <td>Tramo Previo (Acumulación)</td>
+                <td>-</td>
+                <td><span class="badge badge-33">100% Asistencia</span></td>
+                <td>+ ${bolsaAcumuladaHoras.toFixed(2)} h</td>
+                <td>- ${bolsaAcumuladaHoras.toFixed(2)} h</td>
+                <td>Bolsa acumulada a favor trabajada al 100%</td>
+            </tr>
+            <tr class="row-highlight">
+                <td><b>Inicio Jubilación Parcial (${fechaCumple})</b></td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td><b>${deudaNetaHoras.toFixed(2)} h</b></td>
+                <td><b>Deuda Neta tras restar Bolsa Acumulada</b></td>
+            </tr>
+            <tr>
+                <td>Jornada Presencial Necesaria</td>
+                <td>${presenciaSinVacDias.toFixed(2)}</td>
+                <td><span class="badge badge-75">Presencial</span></td>
+                <td>- ${(presenciaSinVacDias * jornadaDiaria).toFixed(2)} h</td>
+                <td>${(vacacionesDias * jornadaDiaria).toFixed(2)} h</td>
+                <td>Asistencia física requerida en empresa</td>
+            </tr>
+            <tr class="row-liberado">
+                <td>Consumo Vacaciones / Permisos</td>
+                <td>${vacacionesDias.toFixed(2)}</td>
+                <td><span class="badge badge-off">VAC / AP</span></td>
+                <td>- ${(vacacionesDias * jornadaDiaria).toFixed(2)} h</td>
+                <td>0,00 h</td>
+                <td><b>Amortización total con días acumulados</b></td>
+            </tr>
+            <tr class="row-liberado">
+                <td>Cese Asistencia Presencial</td>
+                <td>-</td>
+                <td><span class="badge badge-off">100% LIBERADO</span></td>
+                <td>0,00 h</td>
+                <td>0,00 h</td>
+                <td><b>Último día presencial: ${fechaUltimoDia.toLocaleDateString('es-ES', opcionesFecha)}</b></td>
+            </tr>
+        `;
     }
 
     window.onload = function() {
-        actualizarNombre();
+        recalcular();
     };
 </script>
 
