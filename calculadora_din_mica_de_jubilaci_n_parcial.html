@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Dinámica de Jubilación Parcial - Cataluña / España</title>
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Estilos específicos para impresión DIN A4 Vertical */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .page-break-inside-avoid {
+                break-inside: avoid;
+            }
+            .shadow-md, .shadow-sm, .card-shadow {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            .bg-slate-50, .bg-slate-100, .bg-blue-50 {
+                background-color: #ffffff !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Encabezado / Navegación -->
+    <header class="bg-slate-900 text-white shadow-md no-print mb-6">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-blue-600 rounded-lg">
+                    <i data-lucide="calculator" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold leading-tight">Calculadora de Jubilación Parcial</h1>
+                    <p class="text-xs text-slate-400">Acumulación de jornada y cómputo de días presenciales (Cataluña / España)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="cargarPreset('juan_carlos')" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 transition">
+                    Cargar Juan Carlos
+                </button>
+                <button onclick="cargarPreset('manolo')" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md border border-slate-700 transition">
+                    Cargar Manolo
+                </button>
+                <button onclick="window.print()" class="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-md shadow flex items-center gap-1.5 transition">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- FORMULARIO DE PARÁMETROS (COLUMNA IZQUIERDA - NO PRINT) -->
+        <section class="lg:col-span-5 space-y-6 no-print">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 card-shadow">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="user-cog" class="w-5 h-5 text-blue-600"></i> Datos del Trabajador
+                    </h2>
+                    <span class="text-xs text-slate-400">Parámetros editables</span>
+                </div>
+
+                <form id="calcForm" onsubmit="event.preventDefault(); calcular();" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Nombre del Trabajador</label>
+                        <input type="text" id="nombre" value="Juan Carlos" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Fecha Nacimiento (63 años)</label>
+                            <input type="date" id="fechaNacimiento" value="1964-05-02" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Edad Jubilación Ordinaria</label>
+                            <input type="number" id="edadJubilacion" value="65" step="0.5" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Horas Anuales Convenio</label>
+                            <input type="number" id="horasAnuales" value="1620" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Jornada Diaria (Horas)</label>
+                            <input type="number" id="jornadaDiaria" value="7.5" step="0.1" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Vacaciones / AP (Días)</label>
+                            <input type="number" id="diasVacaciones" value="27.35" step="0.05" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Festivos Locales (Días/Año)</label>
+                            <input type="number" id="festivosLocales" value="14" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- TRAMOS DE REDUCCIÓN / ACUMULACIÓN -->
+                    <div class="pt-2 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i> Tramos de Reducción / Aportación
+                            </label>
+                            <button type="button" onclick="agregarTramo()" class="text-xs text-blue-600 font-medium hover:underline flex items-center gap-0.5">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Añadir Tramo
+                            </button>
+                        </div>
+                        <div id="tramosContainer" class="space-y-3">
+                            <!-- Los tramos se insertan dinámicamente mediante JS -->
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="button" onclick="calcular()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow transition flex items-center justify-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Recalcular Planificación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- PANEL DE RESULTADOS Y REPORTES (COLUMNA DERECHA) -->
+        <section class="lg:col-span-7 space-y-6">
+
+            <!-- ENCABEZADO DE IMPRESIÓN SOLAMENTE -->
+            <div class="hidden print-only mb-6 border-b-2 border-slate-800 pb-4">
+                <h1 class="text-2xl font-bold text-slate-900">Informe de Planificación de Jubilación Parcial</h1>
+                <p class="text-sm text-slate-600" id="printSubtitulo">Cómputo de horas, vacaciones y días presenciales requeridos</p>
+            </div>
+
+            <!-- TARJETAS RESUMEN DE INDICADORES -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 card-shadow">
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Deuda Teórica Total</p>
+                    <p class="text-lg font-bold text-slate-900 mt-1" id="resHorasTeoricas">0.00 h</p>
+                    <span class="text-[10px] text-slate-400" id="resAnosJubilacion">2 años de parcial</span>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 card-shadow">
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Bolsa Acumulada</p>
+                    <p class="text-lg font-bold text-emerald-600 mt-1" id="resBolsaAcumulada">+ 0.00 h</p>
+                    <span class="text-[10px] text-slate-400">Previo a prejubilación</span>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 card-shadow">
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Deuda Neta Inicial</p>
+                    <p class="text-lg font-bold text-blue-700 mt-1" id="resDeudaNeta">0.00 h</p>
+                    <span class="text-[10px] text-slate-400" id="resDiasTotalesSinVac">0.0 días laborables</span>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 card-shadow">
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Días Presenciales Reales</p>
+                    <p class="text-lg font-bold text-amber-600 mt-1" id="resDiasPresenciales">0.00 días</p>
+                    <span class="text-[10px] text-slate-400" id="resDescuentoVacaciones">-0 días vacaciones</span>
+                </div>
+            </div>
+
+            <!-- DESTACADO: FECHA FINAL -->
+            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-5 rounded-xl shadow-md border border-blue-800">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <span class="inline-block px-2 py-0.5 text-[10px] uppercase font-semibold bg-blue-700 text-blue-100 rounded mb-1">
+                            Resultado Final Calculado
+                        </span>
+                        <h3 class="text-sm font-medium text-blue-200">Último día de Trabajo Presencial Requerido</h3>
+                        <p class="text-2xl font-extrabold text-white mt-0.5" id="resFechaFinal">-- / -- / ----</p>
+                    </div>
+                    <div class="text-right sm:text-right border-t sm:border-t-0 border-blue-800 pt-2 sm:pt-0 w-full sm:w-auto">
+                        <p class="text-xs text-blue-200">Fecha de Inicio Jubilación Parcial</p>
+                        <p class="text-sm font-semibold text-white" id="resFechaInicioJub">-- / -- / ----</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLA MES A MES -->
+            <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-4 h-4 text-blue-600"></i> Desglose Temporal y Cómputo Mes a Mes
+                    </h3>
+                    <span class="text-xs text-slate-500" id="resSumaMeses">0 meses computados</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Mes / Periodo</th>
+                                <th class="p-3 text-center">Días Laborables</th>
+                                <th class="p-3 text-center">Régimen</th>
+                                <th class="p-3 text-right">Horas (+ / -)</th>
+                                <th class="p-3 text-right">Saldo Pendiente</th>
+                                <th class="p-3">Observaciones / Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCuerpo" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Filas generadas dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FIRMA Y NOTAS PARA IMPRESIÓN -->
+            <div class="hidden print-only pt-8 space-y-6 page-break-inside-avoid">
+                <div class="text-xs text-slate-500 space-y-1">
+                    <p><strong>Observaciones:</strong> Los cálculos están optimizados excluyendo fines de semana (Sábados y Domingos) y computando días laborables efectivos según el convenio colectivo introducido.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-12 pt-12 border-t border-slate-300 text-center text-xs">
+                    <div>
+                        <p class="border-t border-slate-400 pt-2 font-semibold">Firma del Trabajador/a</p>
+                        <p class="text-slate-500 mt-1" id="firmaNombre">--</p>
+                    </div>
+                    <div>
+                        <p class="border-t border-slate-400 pt-2 font-semibold">Conforme por la Empresa / RRHH</p>
+                        <p class="text-slate-500 mt-1">Sello y Fecha</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- JS de Lucide Icons -->
+    <script>
+        lucide.createIcons();
+
+        // Estado inicial de tramos
+        let tramos = [
+            {
+                tipo: 'acumulacion',
+                nombre: 'Tramo Previo (Generación Bolsa 33%)',
+                porcentaje: 33.3333,
+                fechaInicio: '2026-10-01',
+                fechaFin: '2027-05-01'
+            },
+            {
+                tipo: 'parcial',
+                nombre: 'Periodo Jubilación Parcial (75% Reducción / 25% Deuda)',
+                porcentaje: 25,
+                fechaInicio: '2027-05-02',
+                fechaFin: '2029-05-02'
+            }
+        ];
+
+        // Calendario aproximado de días laborables L-V para Barcelona/Cataluña (2026-2028)
+        const diasLaborablesMeses = {
+            '2026-10': 21, '2026-11': 20, '2026-12': 20,
+            '2027-01': 19, '2027-02': 20, '2027-03': 22,
+            '2027-04': 20, '2027-05': 19, '2027-06': 21,
+            '2027-07': 22, '2027-08': 21, '2027-09': 21,
+            '2027-10': 20, '2027-11': 21, '2027-12': 20,
+            '2028-01': 20, '2028-02': 21, '2028-03': 22
+        };
+
+        function renderTramos() {
+            const container = document.getElementById('tramosContainer');
+            container.innerHTML = '';
+
+            tramos.forEach((t, index) => {
+                const tramoHtml = `
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 relative text-xs space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-slate-700">${t.nombre}</span>
+                            ${tramos.length > 1 ? `<button type="button" onclick="eliminarTramo(${index})" class="text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>` : ''}
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-500">Tipo</label>
+                                <select onchange="actualizarTramo(${index}, 'tipo', this.value)" class="w-full p-1 border rounded text-xs bg-white">
+                                    <option value="acumulacion" ${t.tipo === 'acumulacion' ? 'selected' : ''}>Acumulación Bolsa (+%)</option>
+                                    <option value="parcial" ${t.tipo === 'parcial' ? 'selected' : ''}>Jub. Parcial (% Deuda)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-500">% Aplicable</label>
+                                <input type="number" step="0.01" value="${t.porcentaje}" onchange="actualizarTramo(${index}, 'porcentaje', parseFloat(this.value))" class="w-full p-1 border rounded text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-500">Inicio</label>
+                                <input type="date" value="${t.fechaInicio}" onchange="actualizarTramo(${index}, 'fechaInicio', this.value)" class="w-full p-1 border rounded text-xs bg-white">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', tramoHtml);
+            });
+            lucide.createIcons();
+        }
+
+        function agregarTramo() {
+            tramos.push({
+                tipo: 'parcial',
+                nombre: `Tramo ${tramos.length + 1}`,
+                porcentaje: 25,
+                fechaInicio: '2027-05-02',
+                fechaFin: '2029-05-02'
+            });
+            renderTramos();
+            calcular();
+        }
+
+        function eliminarTramo(index) {
+            tramos.splice(index, 1);
+            renderTramos();
+            calcular();
+        }
+
+        function actualizarTramo(index, campo, valor) {
+            tramos[index][campo] = valor;
+            calcular();
+        }
+
+        // Carga de Presets predefinidos (Juan Carlos y Manolo)
+        function cargarPreset(persona) {
+            if (persona === 'juan_carlos') {
+                document.getElementById('nombre').value = 'Juan Carlos';
+                document.getElementById('fechaNacimiento').value = '1964-05-02';
+                document.getElementById('diasVacaciones').value = 27.35;
+                tramos = [
+                    { tipo: 'acumulacion', nombre: 'Tramo 100% (+33.33% Bolsa)', porcentaje: 33.3333, fechaInicio: '2026-10-01', fechaFin: '2027-05-01' },
+                    { tipo: 'parcial', nombre: 'Periodo Jubilación Parcial (25% Deuda)', porcentaje: 25, fechaInicio: '2027-05-02', fechaFin: '2029-05-02' }
+                ];
+            } else if (persona === 'manolo') {
+                document.getElementById('nombre').value = 'Manolo';
+                document.getElementById('fechaNacimiento').value = '1964-03-21';
+                document.getElementById('diasVacaciones').value = 22.00;
+                tramos = [
+                    { tipo: 'acumulacion', nombre: 'Tramo 100% (+33.33% Bolsa)', porcentaje: 33.3333, fechaInicio: '2026-10-01', fechaFin: '2027-03-21' },
+                    { tipo: 'parcial', nombre: 'Periodo Jubilación Parcial (25% Deuda)', porcentaje: 25, fechaInicio: '2027-03-22', fechaFin: '2029-03-21' }
+                ];
+            }
+            renderTramos();
+            calcular();
+        }
+
+        // Función Principal de Cómputo
+        function calcular() {
+            const nombre = document.getElementById('nombre').value;
+            const fechaNac = new Date(document.getElementById('fechaNacimiento').value);
+            const jornada = parseFloat(document.getElementById('jornadaDiaria').value) || 7.5;
+            const vacacionesDias = parseFloat(document.getElementById('diasVacaciones').value) || 0;
+            const horasAnuales = parseFloat(document.getElementById('horasAnuales').value) || 1620;
+
+            // Actualizar firmas e impresiones
+            document.getElementById('firmaNombre').innerText = nombre;
+            document.getElementById('printSubtitulo').innerText = `Planificación para ${nombre} | Jornada: ${jornada}h/día | Vacaciones: ${vacacionesDias} días`;
+
+            // Calcular fechas claves de jubilación parcial
+            const tramoAcumulacion = tramos.find(t => t.tipo === 'acumulacion');
+            const tramoParcial = tramos.find(t => t.tipo === 'parcial');
+
+            const fechaInicioParcial = tramoParcial ? new Date(tramoParcial.fechaInicio) : new Date(fechaNac.getFullYear() + 63, fechaNac.getMonth(), fechaNac.getDate());
+            
+            // Cómputo de Bolsa Acumulada
+            let bolsaAcumulada = 0;
+            if (tramoAcumulacion) {
+                const fInicio = new Date(tramoAcumulacion.fechaInicio);
+                const fFin = new Date(tramoAcumulacion.fechaFin);
+                
+                // Meses completos o proporcionales
+                let tempDate = new Date(fInicio);
+                while (tempDate < fFin) {
+                    const keyMes = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}`;
+                    const diasLab = diasLaborablesMeses[keyMes] || 20;
+                    
+                    // Si es el último mes parcial
+                    if (tempDate.getMonth() === fFin.getMonth() && tempDate.getFullYear() === fFin.getFullYear()) {
+                        const proporcion = fFin.getDate() / 31;
+                        bolsaAcumulada += (diasLab * proporcion) * jornada * (tramoAcumulacion.porcentaje / 100);
+                    } else {
+                        bolsaAcumulada += diasLab * jornada * (tramoAcumulacion.porcentaje / 100);
+                    }
+                    tempDate.setMonth(tempDate.getMonth() + 1);
+                }
+            }
+
+            // Deuda Teórica (2 años al % de reducción/deuda del tramo parcial)
+            const pctParcial = tramoParcial ? (tramoParcial.porcentaje / 100) : 0.25;
+            const deudaTeoricaHoras = (horasAnuales * 2) * pctParcial;
+
+            // Deuda Neta e Indicadores
+            const deudaNetaHoras = Math.max(0, deudaTeoricaHoras - bolsaAcumulada);
+            const diasTotalesSinVac = deudaNetaHoras / jornada;
+            const diasPresencialesReales = Math.max(0, diasTotalesSinVac - vacacionesDias);
+
+            // Actualizar Tarjetas
+            document.getElementById('resHorasTeoricas').innerText = `${deudaTeoricaHoras.toFixed(2)} h`;
+            document.getElementById('resBolsaAcumulada').innerText = `+ ${bolsaAcumulada.toFixed(2)} h`;
+            document.getElementById('resDeudaNeta').innerText = `${deudaNetaHoras.toFixed(2)} h`;
+            document.getElementById('resDiasTotalesSinVac').innerText = `${diasTotalesSinVac.toFixed(2)} días laborables`;
+            document.getElementById('resDiasPresenciales').innerText = `${diasPresencialesReales.toFixed(2)} días`;
+            document.getElementById('resDescuentoVacaciones').innerText = `-${vacacionesDias.toFixed(2)} días vac./permisos`;
+            document.getElementById('resFechaInicioJub').innerText = fechaInicioParcial.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            // Cómputo de la FECHA EXACTA FINAL mediante días laborables
+            let fechaCursor = new Date(fechaInicioParcial);
+            let diasContados = 0;
+            const diasObjetivo = Math.round(diasPresencialesReales);
+
+            while (diasContados < diasObjetivo) {
+                // Si es día de semana Lunes(1) a Viernes(5)
+                const diaSemana = fechaCursor.getDay();
+                if (diaSemana !== 0 && diaSemana !== 6) {
+                    diasContados++;
+                }
+                if (diasContados < diasObjetivo) {
+                    fechaCursor.setDate(fechaCursor.getDate() + 1);
+                }
+            }
+
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('resFechaFinal').innerText = fechaCursor.toLocaleDateString('es-ES', opcionesFecha);
+
+            // Generar Tabla Desglose Mes a Mes
+            generarTablaMeses(fechaInicioParcial, bolsaAcumulada, deudaNetaHoras, jornada, diasPresencialesReales, fechaCursor);
+        }
+
+        function generarTablaMeses(fechaInicioParcial, bolsaInicial, deudaNetaInicial, jornada, diasPresencialesReales, fechaFinalExacta) {
+            const tbody = document.getElementById('tablaCuerpo');
+            tbody.innerHTML = '';
+
+            let saldo = deudaNetaInicial;
+            let totalMeses = 0;
+
+            // 1. Filas de acumulación previa
+            if (tramoAcumulacionValido()) {
+                const tramo = tramos.find(t => t.tipo === 'acumulacion');
+                let start = new Date(tramo.fechaInicio);
+                let end = new Date(tramo.fechaFin);
+                let acumTemp = 0;
+
+                while (start < end) {
+                    const keyMes = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`;
+                    const diasLab = diasLaborablesMeses[keyMes] || 20;
+                    let hrsGanadas = diasLab * jornada * (tramo.porcentaje / 100);
+                    
+                    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+                        hrsGanadas *= (end.getDate() / 31);
+                    }
+                    
+                    acumTemp += hrsGanadas;
+
+                    const nombreMes = start.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                    
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr class="bg-amber-50/50">
+                            <td class="p-3 font-medium capitalize">${nombreMes}</td>
+                            <td class="p-3 text-center">${diasLab}</td>
+                            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">100% (+33%)</span></td>
+                            <td class="p-3 text-right font-semibold text-emerald-600">+ ${hrsGanadas.toFixed(2)} h</td>
+                            <td class="p-3 text-right text-slate-500">- ${acumTemp.toFixed(2)} h</td>
+                            <td class="p-3 text-slate-500">Generando bolsa a favor previa</td>
+                        </tr>
+                    `);
+
+                    start.setMonth(start.getMonth() + 1);
+                    totalMeses++;
+                }
+            }
+
+            // Hito: Inicio de Jubilación Parcial
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr class="bg-blue-100/70 font-bold border-y-2 border-blue-300">
+                    <td class="p-3">${fechaInicioParcial.toLocaleDateString('es-ES')}</td>
+                    <td class="p-3 text-center">-</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-600 text-white">INICIO PARCIAL</span></td>
+                    <td class="p-3 text-right">-</td>
+                    <td class="p-3 text-right text-blue-900">${deudaNetaInicial.toFixed(2)} h</td>
+                    <td class="p-3 text-blue-900">Inicio Jubilación Parcial (Deuda Neta Inicial)</td>
+                </tr>
+            `);
+
+            // 2. Meses de Trabajo Presencial
+            let mesPresencial = new Date(fechaInicioParcial);
+            let diasAcumulados = 0;
+
+            while (saldo > 0 && diasAcumulados < diasPresencialesReales) {
+                const keyMes = `${mesPresencial.getFullYear()}-${String(mesPresencial.getMonth() + 1).padStart(2, '0')}`;
+                let diasLab = diasLaborablesMeses[keyMes] || 20;
+                
+                // Ajustar si es primer o último mes parcial
+                let diasEfectivos = diasLab;
+                let esUltimoMes = false;
+
+                if ((diasAcumulados + diasEfectivos) >= diasPresencialesReales) {
+                    diasEfectivos = diasPresencialesReales - diasAcumulados;
+                    esUltimoMes = true;
+                }
+
+                const hrsAmortizadas = diasEfectivos * jornada;
+                saldo = Math.max(0, saldo - hrsAmortizadas);
+                diasAcumulados += diasEfectivos;
+
+                const nombreMes = mesPresencial.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr class="${esUltimoMes ? 'bg-amber-100/80 font-semibold' : 'bg-white'}">
+                        <td class="p-3 capitalize">${nombreMes} ${esUltimoMes ? '(Hasta fin presencial)' : ''}</td>
+                        <td class="p-3 text-center">${diasEfectivos.toFixed(2)}</td>
+                        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800">Presencial</span></td>
+                        <td class="p-3 text-right text-amber-700 font-medium">- ${hrsAmortizadas.toFixed(2)} h</td>
+                        <td class="p-3 text-right font-bold">${saldo.toFixed(2)} h</td>
+                        <td class="p-3">${esUltimoMes ? '<strong>FIN DE ASISTENCIA FÍSICA REAL</strong>' : 'Trabajo presencial acumulado'}</td>
+                    </tr>
+                `);
+
+                if (esUltimoMes) break;
+                mesPresencial.setMonth(mesPresencial.getMonth() + 1);
+                totalMeses++;
+            }
+
+            // 3. Meses cubiertos por Vacaciones/Permisos
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr class="bg-emerald-50 font-medium border-t border-emerald-200">
+                    <td class="p-3 capitalize">Periodo de Vacaciones / Permisos</td>
+                    <td class="p-3 text-center">${document.getElementById('diasVacaciones').value}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-200 text-emerald-800">VAC / AP</span></td>
+                    <td class="p-3 text-right text-emerald-700">- ${saldo.toFixed(2)} h</td>
+                    <td class="p-3 text-right font-extrabold text-emerald-800">0.00 h</td>
+                    <td class="p-3 text-emerald-800">Deuda totalmente saldada con vacaciones/permisos</td>
+                </tr>
+            `);
+
+            document.getElementById('resSumaMeses').innerText = `${totalMeses} meses desglosados`;
+        }
+
+        function tramoAcumulacionValido() {
+            return tramos.some(t => t.tipo === 'acumulacion');
+        }
+
+        // Inicialización al cargar la página
+        window.onload = function() {
+            renderTramos();
+            calcular();
+        };
+    </script>
+</body>
+</html>
