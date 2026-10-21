@@ -11,7 +11,6 @@
             --secondary: #e6f2ff;
             --accent: #28a745;
             --warning: #f39c12;
-            --warning-dark: #d68910;
             --text: #333333;
             --bg: #f4f7f9;
             --card-bg: #ffffff;
@@ -46,16 +45,12 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: background 0.2s;
         }
         .btn:hover { background-color: var(--primary-dark); }
         .btn-help { background-color: var(--warning); }
-        .btn-help:hover { background-color: var(--warning-dark); }
         .btn-accent { background-color: var(--accent); }
-        .btn-accent:hover { background-color: #218838; }
         .btn-sm { padding: 4px 10px; font-size: 0.8em; }
         .btn-danger { background-color: var(--danger); }
-        .btn-danger:hover { background-color: #bd2130; }
 
         .card {
             background-color: var(--card-bg);
@@ -64,9 +59,7 @@
             padding: 16px;
             margin-bottom: 20px;
             border-top: 4px solid var(--primary);
-            border-left: 1px solid var(--border);
-            border-right: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
+            border: 1px solid var(--border);
         }
 
         .card h2 {
@@ -83,22 +76,17 @@
             margin-bottom: 20px;
             font-size: 0.88em;
             line-height: 1.5;
-            color: #444;
         }
-
-        .help-panel h3 { margin-top: 0; color: var(--warning-dark); font-size: 1.05em; border-bottom: 1px dashed #f39c12; padding-bottom: 4px; }
-        .help-panel ul { margin: 8px 0; padding-left: 20px; }
-        .help-panel li { margin-bottom: 6px; }
 
         .grid-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
             gap: 12px;
         }
 
         .form-group { display: flex; flex-direction: column; }
         .form-group label { font-size: 0.85em; color: #555; margin-bottom: 4px; font-weight: 600; }
-        .form-group input {
+        .form-group input, .form-group select {
             padding: 7px 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -135,7 +123,7 @@
             padding: 10px; margin-top: 10px; text-align: center; font-size: 0.85em;
         }
 
-        .highlight-box .final-date { font-size: 1.2em; font-weight: bold; color: var(--accent); margin-top: 4px; }
+        .highlight-box .final-date { font-size: 1.15em; font-weight: bold; color: var(--accent); margin-top: 4px; }
 
         .table-responsive {
             background: var(--card-bg); border-radius: 8px;
@@ -150,8 +138,8 @@
         tbody tr:hover { background-color: var(--secondary); }
 
         .badge { padding: 3px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
-        .badge-33 { background-color: #ffe0b2; color: #e65100; }
-        .badge-75 { background-color: #bbdefb; color: #0d47a1; }
+        .badge-dev { background-color: #ffe0b2; color: #e65100; }
+        .badge-pres { background-color: #bbdefb; color: #0d47a1; }
         .badge-off { background-color: #c8e6c9; color: #1b5e20; }
 
         .row-liberado { background-color: #f1f8e9; font-style: italic; color: #555; }
@@ -171,81 +159,80 @@
 
 <div class="container">
     <h1>Calculadora de Jubilación Parcial</h1>
-    <div class="subtitle">Acumulación de jornada y cómputo de días presenciales (Cataluña / España)</div>
+    <div class="subtitle">Cómputo dinámico de bolsa de horas, tramos de devolución y vacaciones</div>
 
     <div class="btn-bar">
         <button class="btn btn-help" onclick="toggleHelp()">❓ Ayuda e Instrucciones</button>
-        <button class="btn btn-accent" onclick="window.print()">🖨️ Imprimir / PDF</button>
+        <button class="btn btn-accent" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
     </div>
 
-    <!-- PANEL DE AYUDA DESPLEGABLE -->
+    <!-- PANEL DE AYUDA -->
     <div id="helpPanel" class="help-panel">
-        <h3>Guía para la Introducción de Datos por Fechas Exactas</h3>
+        <h3 style="margin-top:0;">Instrucciones de Uso</h3>
         <ul>
-            <li><b>Nombre del Trabajador:</b> Nombre completo del empleado para personalizar el informe.</li>
-            <li><b>Fecha Cumpleaños (63 años):</b> Fecha exacta en que alcanza los 63 años e inicia la jubilación parcial.</li>
-            <li><b>Fechas de Tramo:</b> Introduce la **Fecha Inicio** y **Fecha Fin** exactas (AAAA-MM-DD). La calculadora computará únicamente los días laborables reales entre ambas fechas.</li>
-            <li><b>Cómputo Preciso:</b> Se descuentan sábados y domingos para calcular con total exactitud las horas de bolsa a favor y la deuda presencial requerida.</li>
+            <li>Los tramos de devolución se solapan automáticamente: la fecha de fin de un tramo es la fecha de inicio del siguiente.</li>
+            <li>Si la bolsa acumulada y las vacaciones acumuladas superan la deuda teórica, no requerirás días presenciales tras los 63 años.</li>
         </ul>
     </div>
 
     <!-- PANEL DE PARÁMETROS EDITABLES -->
     <div class="card card-inputs">
-        <h2>Datos del Trabajador (Parámetros Editables)</h2>
+        <h2>Parámetros del Trabajador</h2>
         <div class="grid-form">
             <div class="form-group">
-                <label>Nombre del Trabajador</label>
-                <input type="text" id="nombre" value="Juan Carlos">
+                <label>Nombre del Empleado</label>
+                <input type="text" id="nombre" value="Empleado Ejemplo">
             </div>
             <div class="form-group">
-                <label>Fecha Cumpleaños (63 años)</label>
+                <label>Cumpleaños 63 Años (Inicio Parcial)</label>
                 <input type="date" id="fechaCumple" value="2027-05-02">
             </div>
             <div class="form-group">
-                <label>Horas Anuales Convenio</label>
-                <input type="number" id="horasAnuales" value="1620">
+                <label>Días Laborables Semanales</label>
+                <select id="diasSemana">
+                    <option value="5" selected>5 Días (Lunes a Viernes)</option>
+                    <option value="6">6 Días (Lunes a Sábado)</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Jornada Diaria (Horas)</label>
-                <input type="number" step="0.1" id="jornadaDiaria" value="7.5">
+                <input type="text" id="jornadaDiaria" value="7.5">
             </div>
             <div class="form-group">
-                <label>Vacaciones / AP (Días)</label>
-                <input type="number" step="0.01" id="vacacionesDias" value="27.35">
+                <label>Jornada Anual Convenio (Horas)</label>
+                <input type="text" id="horasAnuales" value="1618.25">
+            </div>
+            <div class="form-group">
+                <label>Vacaciones / AP Acumulados (Días)</label>
+                <input type="text" id="vacacionesDias" value="27.35">
             </div>
         </div>
 
-        <!-- SECCIÓN DINÁMICA DE TRAMOS CON FECHAS EXACTAS -->
+        <!-- SECCIÓN DE TRAMOS DE DEVOLUCIÓN -->
         <div class="section-title-sm">
-            <span>Tramos por Fechas Exactas</span>
+            <span>Tramos de Devolución (Encadenados Automáticamente)</span>
             <button class="btn btn-sm" onclick="addTramo()">+ Añadir Tramo</button>
         </div>
         <table class="tramos-table">
             <thead>
                 <tr>
-                    <th>Nombre del Tramo</th>
+                    <th>Concepto del Tramo</th>
                     <th>Fecha Inicio</th>
-                    <th>Fecha Fin</th>
-                    <th>% Reducción</th>
-                    <th>% Trabaja Real</th>
+                    <th>% Devolución</th>
                     <th>Acción</th>
                 </tr>
             </thead>
             <tbody id="tramosBody">
                 <tr>
-                    <td><input type="text" value="Tramo Previo (Acumulación 33%)" class="t-nombre"></td>
+                    <td><input type="text" value="Devolución Primer Tramo (33%)" class="t-nombre"></td>
                     <td><input type="date" value="2026-10-01" class="t-inicio"></td>
-                    <td><input type="date" value="2027-05-01" class="t-fin"></td>
-                    <td><input type="number" value="33" class="t-red" oninput="calcTrabajo(this)"></td>
-                    <td><input type="number" value="100" class="t-trab" readonly style="background:#f0f0f0;"></td>
+                    <td><input type="text" value="33" class="t-red"></td>
                     <td><button class="btn btn-sm btn-danger" onclick="removeTramo(this)">X</button></td>
                 </tr>
                 <tr>
-                    <td><input type="text" value="Tramo Parcial (Régimen 75%)" class="t-nombre"></td>
-                    <td><input type="date" value="2027-05-02" class="t-inicio"></td>
-                    <td><input type="date" value="2029-05-02" class="t-fin"></td>
-                    <td><input type="number" value="75" class="t-red" oninput="calcTrabajo(this)"></td>
-                    <td><input type="number" value="25" class="t-trab" readonly style="background:#f0f0f0;"></td>
+                    <td><input type="text" value="Devolución Segundo Tramo (75%)" class="t-nombre"></td>
+                    <td><input type="date" value="2027-01-01" class="t-inicio"></td>
+                    <td><input type="text" value="75" class="t-red"></td>
                     <td><button class="btn btn-sm btn-danger" onclick="removeTramo(this)">X</button></td>
                 </tr>
             </tbody>
@@ -258,36 +245,36 @@
 
     <!-- TARJETA RESUMEN -->
     <div class="card">
-        <h2 id="cardNombreTitle">Informe de Planificación: Juan Carlos</h2>
+        <h2 id="cardNombreTitle">Informe de Planificación: Empleado Ejemplo</h2>
         <div class="grid-form">
             <div>
                 <div class="stat-group"><span class="stat-label">Bolsa Acumulada Previa:</span><span class="stat-value" id="valBolsa">+ 0,00 h</span></div>
-                <div class="stat-group"><span class="stat-label">Deuda Teórica Parcial:</span><span class="stat-value" id="valDeudaTeorica">0,00 h</span></div>
-                <div class="stat-group"><span class="stat-label">Deuda Neta Inicial:</span><span class="stat-value" id="valDeudaNeta">0,00 h</span></div>
+                <div class="stat-group"><span class="stat-label">Deuda Teórica Parcial (25%):</span><span class="stat-value" id="valDeudaTeorica">0,00 h</span></div>
+                <div class="stat-group"><span class="stat-label">Deuda Neta Inicial (al inicio parcial):</span><span class="stat-value" id="valDeudaNeta">0,00 h</span></div>
             </div>
             <div>
-                <div class="stat-group"><span class="stat-label">Presencia Necesaria sin Vacaciones:</span><span class="stat-value" id="valPresenciaSinVac">0,00 días</span></div>
+                <div class="stat-group"><span class="stat-label">Presencia Nece. sin Vacaciones:</span><span class="stat-value" id="valPresenciaSinVac">0,00 días</span></div>
                 <div class="stat-group"><span class="stat-label">Descuento Vacaciones / Permisos:</span><span class="stat-value" id="valDescuentoVac">- 0,00 días</span></div>
-                <div class="stat-group"><span class="stat-label">Días Asistencia Física Real:</span><span class="stat-value" id="valDiasReales">0,00 días</span></div>
+                <div class="stat-group"><span class="stat-label">Días Asistencia Post-63 Años:</span><span class="stat-value" id="valDiasReales">0,00 días</span></div>
             </div>
         </div>
         <div class="highlight-box">
-            <div>ÚLTIMO DÍA TRABAJO PRESENCIAL</div>
+            <div>ÚLTIMO DÍA DE TRABAJO PRESENCIAL EN ENTORNO LABORAL</div>
             <div class="final-date" id="valFechaFinal">Calculando...</div>
         </div>
     </div>
 
-    <!-- TABLA DESGLOSE MES A MES -->
-    <h2 style="color: var(--primary-dark); font-size: 1.2em; margin-bottom: 10px;">Desglose Mes a Mes</h2>
+    <!-- DESGLOSE MES A MES -->
+    <h2 style="color: var(--primary-dark); font-size: 1.15em; margin-bottom: 10px;">Desglose Detallado Mes a Mes</h2>
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th>Etapa / Periodo</th>
-                    <th>Días Laborables</th>
-                    <th>Régimen</th>
-                    <th>Horas Generadas / Debidas</th>
-                    <th>Saldo Deuda</th>
+                    <th>Mes / Año</th>
+                    <th>Días JL</th>
+                    <th>Régimen / %</th>
+                    <th>Horas Mensuales (Ganadas / Amortizadas)</th>
+                    <th>Saldo Deuda Pendiente</th>
                     <th>Estado / Observaciones</th>
                 </tr>
             </thead>
@@ -303,11 +290,19 @@
         panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
 
-    function calcTrabajo(input) {
-        const row = input.closest('tr');
-        const reduccion = parseFloat(input.value) || 0;
-        const trabajaInput = row.querySelector('.t-trab');
-        trabajaInput.value = (100 - reduccion) > 0 ? (100 - reduccion) : 100;
+    function parseNum(val) {
+        if (!val) return 0;
+        let clean = val.toString().replace(',', '.');
+        return parseFloat(clean) || 0;
+    }
+
+    function parseFecha(str) {
+        if (!str) return null;
+        let parts = str.split('-');
+        if (parts.length === 3) {
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        }
+        return new Date(str);
     }
 
     function addTramo() {
@@ -315,10 +310,8 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><input type="text" value="Nuevo Tramo" class="t-nombre"></td>
-            <td><input type="date" value="2027-01-01" class="t-inicio"></td>
-            <td><input type="date" value="2028-01-01" class="t-fin"></td>
-            <td><input type="number" value="50" class="t-red" oninput="calcTrabajo(this)"></td>
-            <td><input type="number" value="50" class="t-trab" readonly style="background:#f0f0f0;"></td>
+            <td><input type="date" value="2027-03-01" class="t-inicio"></td>
+            <td><input type="text" value="50" class="t-red"></td>
             <td><button class="btn btn-sm btn-danger" onclick="removeTramo(this)">X</button></td>
         `;
         tbody.appendChild(tr);
@@ -328,126 +321,222 @@
         btn.closest('tr').remove();
     }
 
-    // Función auxiliar para contar días laborables (lunes a viernes) entre dos fechas
-    function contarDiasLaborables(fInicio, fFin) {
+    function esDiaLaborable(date, diasSemana) {
+        let day = date.getDay();
+        if (diasSemana === 5) return (day !== 0 && day !== 6);
+        if (diasSemana === 6) return (day !== 0);
+        return true;
+    }
+
+    function contarDiasLaborables(dInicio, dFin, diasSemana) {
         let count = 0;
-        let curDate = new Date(fInicio);
-        const endDate = new Date(fFin);
-        while (curDate < endDate) {
-            const dayOfWeek = curDate.getDay();
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
-            curDate.setDate(curDate.getDate() + 1);
+        let cur = new Date(dInicio.getTime());
+        while (cur < dFin) {
+            if (esDiaLaborable(cur, diasSemana)) count++;
+            cur.setDate(cur.getDate() + 1);
         }
         return count;
     }
 
-    // Función auxiliar para sumar N días laborables a partir de una fecha
-    function sumarDiasLaborables(fInicio, numDias) {
-        let curDate = new Date(fInicio);
+    function sumarDiasLaborables(dInicio, numDias, diasSemana) {
+        let cur = new Date(dInicio.getTime());
+        if (numDias <= 0) {
+            // Retroceder al último día laborable real antes del fin de semana
+            while (!esDiaLaborable(cur, diasSemana)) {
+                cur.setDate(cur.getDate() - 1);
+            }
+            return cur;
+        }
+
         let added = 0;
         while (added < numDias) {
-            curDate.setDate(curDate.getDate() + 1);
-            const dayOfWeek = curDate.getDay();
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) added++;
+            cur.setDate(cur.getDate() + 1);
+            if (esDiaLaborable(cur, diasSemana)) added++;
         }
-        return curDate;
+        return cur;
     }
 
     function recalcular() {
-        const nombre = document.getElementById('nombre').value.trim() || "Trabajador";
-        const jornadaDiaria = parseFloat(document.getElementById('jornadaDiaria').value) || 7.5;
-        const vacacionesDias = parseFloat(document.getElementById('vacacionesDias').value) || 0;
-        const fechaCumple = document.getElementById('fechaCumple').value;
+        try {
+            let nombre = document.getElementById('nombre').value.trim() || "Empleado";
+            let fCumpleStr = document.getElementById('fechaCumple').value;
+            let diasSemana = parseInt(document.getElementById('diasSemana').value) || 5;
+            let jornadaDiaria = parseNum(document.getElementById('jornadaDiaria').value) || 7.5;
+            let horasAnuales = parseNum(document.getElementById('horasAnuales').value) || 1618.25;
+            let vacacionesDias = parseNum(document.getElementById('vacacionesDias').value) || 0;
 
-        document.getElementById('cardNombreTitle').innerText = 'Informe de Planificación: ' + nombre;
+            document.getElementById('cardNombreTitle').innerText = 'Informe de Planificación: ' + nombre;
+            let dCumple = parseFecha(fCumpleStr);
 
-        const rows = document.querySelectorAll('#tramosBody tr');
-        let bolsaAcumuladaHoras = 0;
-        let deudaTeoricaHoras = 0;
-        let inicioJubilacionFecha = fechaCumple ? new Date(fechaCumple) : new Date();
+            let rows = Array.from(document.querySelectorAll('#tramosBody tr'));
+            let tramos = [];
 
-        rows.forEach((row, idx) => {
-            const fIniStr = row.querySelector('.t-inicio').value;
-            const fFinStr = row.querySelector('.t-fin').value;
-            const reduccion = parseFloat(row.querySelector('.t-red').value) || 0;
-            const trabajaReal = parseFloat(row.querySelector('.t-trab').value) || 100;
+            rows.forEach(row => {
+                let fIniStr = row.querySelector('.t-inicio').value;
+                let porcentaje = parseNum(row.querySelector('.t-red').value);
+                let concepto = row.querySelector('.t-nombre').value;
+                if (fIniStr) {
+                    tramos.push({
+                        concepto: concepto,
+                        inicio: parseFecha(fIniStr),
+                        porcentaje: porcentaje
+                    });
+                }
+            });
 
-            if (fIniStr && fFinStr) {
-                const diasLab = contarDiasLaborables(fIniStr, fFinStr);
-                const horasPorDiaReduccion = jornadaDiaria * (reduccion / 100);
+            tramos.sort((a, b) => a.inicio - b.inicio);
 
-                if (idx === 0) {
-                    // Tramo 1: Genera bolsa a favor por trabajar al 100% en lugar de reducir
-                    bolsaAcumuladaHoras = diasLab * horasPorDiaReduccion;
+            let bolsaAcumuladaHoras = 0;
+            for (let i = 0; i < tramos.length; i++) {
+                let dIni = tramos[i].inicio;
+                let dFin = (i < tramos.length - 1) ? tramos[i + 1].inicio : dCumple;
+
+                if (dIni < dFin) {
+                    let diasLab = contarDiasLaborables(dIni, dFin, diasSemana);
+                    let hTramo = diasLab * (jornadaDiaria * (tramos[i].porcentaje / 100));
+                    bolsaAcumuladaHoras += hTramo;
+                    tramos[i].fin = dFin;
                 } else {
-                    // Tramos siguientes: Deuda teorica de presencia (25% trabajo)
-                    const horasPorDiaTrabajo = jornadaDiaria * (trabajaReal / 100);
-                    deudaTeoricaHoras += diasLab * horasPorDiaTrabajo;
+                    tramos[i].fin = dIni;
                 }
             }
-        });
 
-        const deudaNetaHoras = Math.max(0, deudaTeoricaHoras - bolsaAcumuladaHoras);
-        const presenciaSinVacDias = deudaNetaHoras / jornadaDiaria;
-        const diasPresencialesReales = Math.max(0, presenciaSinVacDias - vacacionesDias);
+            let deudaTeoricaHoras = (horasAnuales * 2) * 0.25;
+            let deudaNetaInicial = Math.max(0, deudaTeoricaHoras - bolsaAcumuladaHoras);
 
-        // Fecha de Fin de Trabajo Presencial
-        const fechaUltimoDia = sumarDiasLaborables(inicioJubilacionFecha, Math.round(diasPresencialesReales));
-        const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        
-        // Actualizar Tarjeta Resumen
-        document.getElementById('valBolsa').innerText = "+ " + bolsaAcumuladaHoras.toFixed(2).replace('.', ',') + " h";
-        document.getElementById('valDeudaTeorica').innerText = deudaTeoricaHoras.toFixed(2).replace('.', ',') + " h";
-        document.getElementById('valDeudaNeta').innerText = deudaNetaHoras.toFixed(2).replace('.', ',') + " h";
-        document.getElementById('valPresenciaSinVac').innerText = presenciaSinVacDias.toFixed(2).replace('.', ',') + " días";
-        document.getElementById('valDescuentoVac').innerText = "- " + vacacionesDias.toFixed(2).replace('.', ',') + " días";
-        document.getElementById('valDiasReales').innerText = diasPresencialesReales.toFixed(2).replace('.', ',') + " días";
-        document.getElementById('valFechaFinal').innerText = fechaUltimoDia.toLocaleDateString('es-ES', opcionesFecha);
+            let presenciaSinVacDias = deudaNetaInicial / jornadaDiaria;
+            let diasPresencialesReales = Math.max(0, presenciaSinVacDias - vacacionesDias);
 
-        // Generar Tabla Dinámica por Tramos y Fechas
-        const tbody = document.getElementById('tbodyDesglose');
-        tbody.innerHTML = `
-            <tr>
-                <td>Tramo Previo (Acumulación)</td>
-                <td>-</td>
-                <td><span class="badge badge-33">100% Asistencia</span></td>
-                <td>+ ${bolsaAcumuladaHoras.toFixed(2)} h</td>
-                <td>- ${bolsaAcumuladaHoras.toFixed(2)} h</td>
-                <td>Bolsa acumulada a favor trabajada al 100%</td>
-            </tr>
-            <tr class="row-highlight">
-                <td><b>Inicio Jubilación Parcial (${fechaCumple})</b></td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td><b>${deudaNetaHoras.toFixed(2)} h</b></td>
-                <td><b>Deuda Neta tras restar Bolsa Acumulada</b></td>
-            </tr>
-            <tr>
-                <td>Jornada Presencial Necesaria</td>
-                <td>${presenciaSinVacDias.toFixed(2)}</td>
-                <td><span class="badge badge-75">Presencial</span></td>
-                <td>- ${(presenciaSinVacDias * jornadaDiaria).toFixed(2)} h</td>
-                <td>${(vacacionesDias * jornadaDiaria).toFixed(2)} h</td>
-                <td>Asistencia física requerida en empresa</td>
-            </tr>
-            <tr class="row-liberado">
-                <td>Consumo Vacaciones / Permisos</td>
-                <td>${vacacionesDias.toFixed(2)}</td>
-                <td><span class="badge badge-off">VAC / AP</span></td>
-                <td>- ${(vacacionesDias * jornadaDiaria).toFixed(2)} h</td>
-                <td>0,00 h</td>
-                <td><b>Amortización total con días acumulados</b></td>
-            </tr>
-            <tr class="row-liberado">
-                <td>Cese Asistencia Presencial</td>
-                <td>-</td>
-                <td><span class="badge badge-off">100% LIBERADO</span></td>
-                <td>0,00 h</td>
-                <td>0,00 h</td>
-                <td><b>Último día presencial: ${fechaUltimoDia.toLocaleDateString('es-ES', opcionesFecha)}</b></td>
-            </tr>
-        `;
+            let opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+            document.getElementById('valBolsa').innerText = "+ " + bolsaAcumuladaHoras.toFixed(2).replace('.', ',') + " h";
+            document.getElementById('valDeudaTeorica').innerText = deudaTeoricaHoras.toFixed(2).replace('.', ',') + " h";
+            document.getElementById('valDeudaNeta').innerText = deudaNetaInicial.toFixed(2).replace('.', ',') + " h";
+            document.getElementById('valPresenciaSinVac').innerText = presenciaSinVacDias.toFixed(2).replace('.', ',') + " días";
+            document.getElementById('valDescuentoVac').innerText = "- " + vacacionesDias.toFixed(2).replace('.', ',') + " días";
+
+            if (diasPresencialesReales === 0) {
+                // Retroceder un día del cumpleaños para encontrar el último día trabajado del tramo previo
+                let dPrevioCumple = new Date(dCumple.getTime());
+                dPrevioCumple.setDate(dPrevioCumple.getDate() - 1);
+                let dUltimoDev = sumarDiasLaborables(dPrevioCumple, 0, diasSemana);
+
+                document.getElementById('valDiasReales').innerText = "0,00 días (Cubierto 100% por bolsa y vacaciones)";
+                document.getElementById('valFechaFinal').innerText = "Finalizado en Tramo Previo: " + dUltimoDev.toLocaleDateString('es-ES', opcionesFecha);
+            } else {
+                let dUltimoDiaPresencial = sumarDiasLaborables(dCumple, Math.round(diasPresencialesReales), diasSemana);
+                document.getElementById('valDiasReales').innerText = diasPresencialesReales.toFixed(2).replace('.', ',') + " días";
+                document.getElementById('valFechaFinal').innerText = dUltimoDiaPresencial.toLocaleDateString('es-ES', opcionesFecha);
+            }
+
+            let tbody = document.getElementById('tbodyDesglose');
+            tbody.innerHTML = '';
+
+            let acumuladoBolsa = 0;
+            tramos.forEach(t => {
+                if (t.inicio < t.fin) {
+                    let curMonth = new Date(t.inicio.getFullYear(), t.inicio.getMonth(), 1);
+
+                    while (curMonth < t.fin) {
+                        let nextMonth = new Date(curMonth.getFullYear(), curMonth.getMonth() + 1, 1);
+                        let startRange = (t.inicio > curMonth) ? t.inicio : curMonth;
+                        let endRange = (t.fin < nextMonth) ? t.fin : nextMonth;
+
+                        let diasLab = contarDiasLaborables(startRange, endRange, diasSemana);
+                        if (diasLab > 0) {
+                            let hGanadas = diasLab * (jornadaDiaria * (t.porcentaje / 100));
+                            acumuladoBolsa += hGanadas;
+                            let nombreMes = startRange.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                            nombreMes = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>${nombreMes}</td>
+                                    <td>${diasLab}</td>
+                                    <td><span class="badge badge-dev">100% (+${t.porcentaje}%)</span></td>
+                                    <td>+ ${hGanadas.toFixed(2).replace('.', ',')} h</td>
+                                    <td>- ${acumuladoBolsa.toFixed(2).replace('.', ',')} h</td>
+                                    <td>${t.concepto}</td>
+                                </tr>
+                            `;
+                        }
+                        curMonth = nextMonth;
+                    }
+                }
+            });
+
+            tbody.innerHTML += `
+                <tr class="row-highlight">
+                    <td><b>${dCumple.toLocaleDateString('es-ES')}</b></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><b>${deudaNetaInicial.toFixed(2).replace('.', ',')} h</b></td>
+                    <td><b>Inicio Jubilación Parcial (Deuda Neta tras restar Bolsa)</b></td>
+                </tr>
+            `;
+
+            let saldoDeudaPendiente = deudaNetaInicial;
+            let curPresencial = new Date(dCumple.getTime());
+
+            if (diasPresencialesReales > 0) {
+                let dUltimoDiaPresencial = sumarDiasLaborables(dCumple, Math.round(diasPresencialesReales), diasSemana);
+                while (saldoDeudaPendiente > (vacacionesDias * jornadaDiaria) && curPresencial < dUltimoDiaPresencial) {
+                    let nextMonth = new Date(curPresencial.getFullYear(), curPresencial.getMonth() + 1, 1);
+                    let startRange = curPresencial;
+                    let endRange = (dUltimoDiaPresencial < nextMonth) ? dUltimoDiaPresencial : nextMonth;
+
+                    let diasLab = contarDiasLaborables(startRange, endRange, diasSemana);
+                    if (diasLab > 0) {
+                        let hAmortizadas = diasLab * jornadaDiaria;
+                        saldoDeudaPendiente -= hAmortizadas;
+
+                        let nombreMes = startRange.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                        nombreMes = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+
+                        let esUltimo = (endRange.getTime() === dUltimoDiaPresencial.getTime());
+                        let rowClass = esUltimo ? 'class="row-highlight"' : '';
+                        let obs = esUltimo ? `<b>Fin Asistencia Física (~${dUltimoDiaPresencial.getDate()} de ${startRange.toLocaleDateString('es-ES', {month:'long'})})</b>` : `Trabajo presencial (${diasLab} días x ${jornadaDiaria}h)`;
+
+                        tbody.innerHTML += `
+                            <tr ${rowClass}>
+                                <td>${nombreMes}</td>
+                                <td>${diasLab}</td>
+                                <td><span class="badge badge-pres">Presencial</span></td>
+                                <td>- ${hAmortizadas.toFixed(2).replace('.', ',')} h</td>
+                                <td>${Math.max(0, saldoDeudaPendiente).toFixed(2).replace('.', ',')} h</td>
+                                <td>${obs}</td>
+                            </tr>
+                        `;
+                    }
+                    curPresencial = nextMonth;
+                }
+            }
+
+            let hVacaciones = vacacionesDias * jornadaDiaria;
+            let dJubTotal = new Date(dCumple.getFullYear() + 2, dCumple.getMonth(), dCumple.getDate());
+
+            tbody.innerHTML += `
+                <tr class="row-liberado">
+                    <td>Vacaciones / Permisos</td>
+                    <td>${vacacionesDias.toFixed(2).replace('.', ',')}</td>
+                    <td><span class="badge badge-off">VAC / AP</span></td>
+                    <td>- ${hVacaciones.toFixed(2).replace('.', ',')} h</td>
+                    <td>0,00 h</td>
+                    <td><b>Amortización total de deuda con vacaciones acumuladas</b></td>
+                </tr>
+                <tr class="row-liberado">
+                    <td>Cese Asistencia Presencial</td>
+                    <td>-</td>
+                    <td><span class="badge badge-off">100% LIBERADO</span></td>
+                    <td>0,00 h</td>
+                    <td>0,00 h</td>
+                    <td><b>Liberado de trabajo presencial hasta Jubilación Total (${dJubTotal.toLocaleDateString('es-ES')})</b></td>
+                </tr>
+            `;
+        } catch (err) {
+            console.error("Error en recalcular:", err);
+        }
     }
 
     window.onload = function() {
